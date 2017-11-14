@@ -19,5 +19,5 @@ images = [(extractDate(filename), filename) for filename in glob.glob('katkam-sc
 img_data = pd.DataFrame(images, columns=['Date/Time', 'Path'])
 
 final = data.merge(img_data, on=['Date/Time'])
-final.to_csv('cleaned_data.csv')
+final.to_csv('cleaned_data.csv', index=False)
 print(final)
