@@ -4,6 +4,19 @@ from scipy import ndimage
 import os.path
 import numpy as np
 
+
+targets = {'Mostly Cloudy' : 'Cloudy',
+		'Mainly Clear' : 'Clear',
+		'Rain Showers' : 'Rain',
+		'Moderate Rain' : 'Rain'
+	}
+
+def changeLabel(s):
+    try:
+        return targets[s]
+    except KeyError:
+        return s
+
 def extractDate(filename):
     name = os.path.basename(filename)
     name = name.split('-')[1]
@@ -19,5 +32,5 @@ images = [(extractDate(filename), filename) for filename in glob.glob('katkam-sc
 img_data = pd.DataFrame(images, columns=['Date/Time', 'Path'])
 
 final = data.merge(img_data, on=['Date/Time'])
+final['Weather'] = final['Weather'].apply(changeLabel)
 final.to_csv('cleaned_data.csv', index=False)
-print(final)
