@@ -31,32 +31,32 @@ def img_to_nparray(path):
     img = img.reshape(img.shape[0]*img.shape[1]*3)
     return img
 
-l = [pd.read_csv(filename, usecols=["Date/Time","Year","Month","Day","Time","Weather"], skiprows=16) for filename in glob.glob('yvr-weather/*.csv')]
+l = [pd.read_csv(filename, skiprows=16) for filename in glob.glob('yvr-weather/*.csv')]
 data = pd.concat(l, axis=0).dropna(subset = ['Weather'])
+data = data.drop(['Year','Month','Day','Time','Data Quality'], axis=1)
+data['Date/Time'] = pd.to_datetime(data['Date/Time'])
 
 images = [(extractDate(filename), filename) for filename in glob.glob('katkam-scaled/*.jpg')]
-
 img_data = pd.DataFrame(images, columns=['Date/Time', 'Path'])
+img_data['Date/Time'] = pd.to_datetime(img_data['Date/Time'])
 
 final = data.merge(img_data, on=['Date/Time'])
 final['Weather'] = final['Weather'].apply(changeLabel)
 
+final.drop("Path", axis=1).dropna(axis=1).to_csv('cleaned_data.csv', index=False)
 
-final.drop(columns="Path").to_csv('cleaned_data.csv', index=False)
 del data
 del images
 del img_data
-
 X = np.array([img_to_nparray(fname) for fname in final['Path']])
 # print(X.shape)
-
 pca = PCA(250)
 X = pca.fit_transform(X)
 # print(X.shape)
-
 variance = pca.explained_variance_ratio_
 total = 0
 for i in range(len(variance)):
     total = total + variance[i]
     
 np.savetxt("PCA_data.csv", X, delimiter=',')
+
