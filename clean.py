@@ -29,6 +29,7 @@ def extractDate(filename):
 def img_to_nparray(path):
     img = np.array(Image.open(path))
     img = img.reshape(img.shape[0]*img.shape[1]*3)
+    img = img/255
     return img
 
 l = [pd.read_csv(filename, skiprows=16) for filename in glob.glob('yvr-weather/*.csv')]
@@ -43,20 +44,23 @@ img_data['Date/Time'] = pd.to_datetime(img_data['Date/Time'])
 final = data.merge(img_data, on=['Date/Time'])
 final['Weather'] = final['Weather'].apply(changeLabel)
 
-final.drop("Path", axis=1).dropna(axis=1).to_csv('cleaned_data.csv', index=False)
 
 del data
 del images
 del img_data
+
+## Reading Images and doing PCA to reduce image features
 X = np.array([img_to_nparray(fname) for fname in final['Path']])
-# print(X.shape)
 pca = PCA(250)
 X = pca.fit_transform(X)
-# print(X.shape)
 variance = pca.explained_variance_ratio_
 total = 0
 for i in range(len(variance)):
     total = total + variance[i]
-    
-np.savetxt("PCA_data.csv", X, delimiter=',')
+
+## Add 250 features to original csv
+img_data = pd.DataFrame(X)
+final = pd.concat([final, img_data],axis=1)
+final.drop("Path", axis=1).dropna(axis=1).to_csv('cleaned_data.csv', index=False)
+
 
