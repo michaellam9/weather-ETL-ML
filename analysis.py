@@ -32,15 +32,12 @@ def compareModels(X_train, X_test, y_train, y_test, models):
 def main():
     data = pd.read_csv('cleaned_data.csv', parse_dates=['Date/Time'])
     data['timestamp'] = data['Date/Time'].apply(to_timestamp)
-    cols = ['Temp (°C)', 'Dew Point Temp (°C)', 'Rel Hum (%)', 'Wind Spd (km/h)', 'Visibility (km)', 'Stn Press (kPa)','timestamp']
-    
-    X = data[cols]
+    random = 20
     y = data['Weather']
-    X_train, X_test, y_train, y_test = train_test_split(X,y)
 
     model_SVC = make_pipeline(
         StandardScaler(),
-        SVC(kernel='linear', C=10))
+        SVC(C=10))
 
     model_Gaussian = make_pipeline(
         StandardScaler(),
@@ -53,14 +50,23 @@ def main():
 
     models = [model_SVC, model_Gaussian, model_Knn]
     
-    stats = compareModels(X_train,X_test,y_train,y_test,models)
+    cols = ['Temp (°C)', 'Dew Point Temp (°C)', 'Rel Hum (%)', 'Wind Spd (km/h)', 'Visibility (km)', 'Stn Press (kPa)','timestamp']
+    X = data[cols]
+    X_train, X_test, y_train, y_test = train_test_split(X,y, random_state=random)
+    statsDataOnly = compareModels(X_train,X_test,y_train,y_test,models)
+    statsDataOnly['Model'] = statsDataOnly['Model'] + ' (Data only)'
+
+    X = data.loc[:,'0':'249']
+    X_train, X_test, y_train, y_test = train_test_split(X,y, random_state=random)
+    statsImagesOnly = compareModels(X_train,X_test,y_train,y_test,models)
+    statsImagesOnly['Model'] = statsImagesOnly['Model'] + ' (Images only)'
+
     X = data.drop(['Weather','Date/Time'], axis=1)
+    X_train, X_test, y_train, y_test = train_test_split(X,y, random_state=random)
+    statsBoth = compareModels(X_train,X_test,y_train,y_test,models)
+    statsBoth['Model'] = statsBoth['Model'] + ' (Data and Images)'
 
-    X_train, X_test, y_train, y_test = train_test_split(X,y)
-    statsImages = compareModels(X_train,X_test,y_train,y_test,models)
-    statsImages['Model'] = stats['Model'] + ' with Images'
-
-    final = pd.concat([stats,statsImages])
+    final = pd.concat([statsDataOnly,statsImagesOnly, statsBoth]).set_index('Model')
     print(final)
 
 
