@@ -53,6 +53,7 @@ del img_data
 ## Reading Images and doing PCA to reduce image features
 X = np.array([img_to_nparray(fname) for fname in final['Path']])
 
+# one clear sky picture and one cloudy sky picture have been picked
 index1 = final['Path'][final['Path'] == "katkam-scaled/katkam-20160605070000.jpg"].index[0]
 original_image1 = X[index1].reshape([192,256,3])
 index2 = final['Path'][final['Path'] == "katkam-scaled/katkam-20171031130000.jpg"].index[0]
