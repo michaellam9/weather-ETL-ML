@@ -5,6 +5,7 @@ import os.path
 import numpy as np
 from sklearn.decomposition import PCA
 from PIL import Image
+import matplotlib.pyplot as plt
 
 
 targets = {'Mostly Cloudy' : 'Cloudy',
@@ -51,16 +52,36 @@ del img_data
 
 ## Reading Images and doing PCA to reduce image features
 X = np.array([img_to_nparray(fname) for fname in final['Path']])
+
+index1 = final['Path'][final['Path'] == "katkam-scaled/katkam-20160605070000.jpg"].index[0]
+original_image1 = X[index1].reshape([192,256,3])
+index2 = final['Path'][final['Path'] == "katkam-scaled/katkam-20171031130000.jpg"].index[0]
+original_image2 = X[index2].reshape([192,256,3])
+
 pca = PCA(250)
 X = pca.fit_transform(X)
 variance = pca.explained_variance_ratio_
 total = 0
 for i in range(len(variance)):
     total = total + variance[i]
+print("Total explained variance ratio with 250 features: " + str(total))
+
+transformed_image1 = pca.inverse_transform(X[index1]).reshape([192,256,3])
+plt.imshow(original_image1)
+plt.savefig("pre_transform_clear_sky.png")
+
+plt.imshow(transformed_image1)
+plt.savefig("post_transform_clear_sky.png")
+
+transformed_image2 = pca.inverse_transform(X[index2]).reshape([192,256,3])
+plt.imshow(original_image2)
+plt.savefig("pre_transform_cloudy_sky.png")
+
+plt.imshow(transformed_image2)
+plt.savefig("post_transform_cloudy_sky.png")
 
 ## Add 250 features to original csv
 img_data = pd.DataFrame(X)
 final = pd.concat([final, img_data],axis=1)
 final.drop("Path", axis=1).dropna(axis=1).to_csv('cleaned_data.csv', index=False)
-
 
