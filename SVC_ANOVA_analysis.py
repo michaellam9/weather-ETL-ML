@@ -6,8 +6,6 @@ import time
 from sklearn.pipeline import make_pipeline
 from sklearn.svm import SVC
 from sklearn.model_selection import train_test_split
-from sklearn.naive_bayes import GaussianNB
-from sklearn.neighbors import KNeighborsClassifier
 from sklearn.preprocessing import StandardScaler
 
 from scipy import stats
@@ -64,16 +62,16 @@ def main():
     plt.savefig("posthoc_tukey_plot.png")
 
 
+# ANOVA p-value: 5.10835977894e-19
+#        Multiple Comparison of Means - Tukey HSD,FWER=0.05      
+# ===============================================================
+#      group1          group2     meandiff  lower   upper  reject
+# ---------------------------------------------------------------
+#  Both Data Sets Instrument Data -0.0303   -0.037 -0.0236  True 
+#  Both Data Sets    Photo Data   -0.0222  -0.0289 -0.0155  True 
+# Instrument Data    Photo Data    0.0081   0.0014  0.0148  True 
+# ---------------------------------------------------------------
 
-    ## Plot multiple bar charts with scores
-    # X = np.arange(3)
-    # plt.bar(0, SVC_scores['Score'], color = 'g', width = 0.25, label='SVC')
-    # plt.legend(['Data and Images', 'Data Only', 'Images Only'])
-    # plt.xticks(0,('SVC'))
-    # plt.ylim(0,1)
-    # plt.ylabel('Score')
-    # plt.title('Scores of different models with subset of features')
-    # plt.show()
 
 if __name__ == '__main__':
     main()
