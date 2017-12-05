@@ -2,7 +2,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
 import time
-
+import matplotlib.patches as mpatches
 from sklearn.pipeline import make_pipeline
 from sklearn.svm import SVC
 from sklearn.model_selection import train_test_split
@@ -33,7 +33,6 @@ def main():
 
     data = pd.read_csv('cleaned_data.csv', parse_dates=['Date/Time'])
     data['timestamp'] = data['Date/Time'].apply(to_timestamp)
-    random = 15
     y = data['Weather']
 
     model_SVC = make_pipeline(
@@ -54,7 +53,7 @@ def main():
     allScores =[]
     
     ## Run multiple trials with different splits to get a more accurate score
-    for i in range(5):
+    for i in range(10):
     
         cols = ['Temp (°C)', 'Dew Point Temp (°C)', 'Rel Hum (%)', 'Wind Spd (km/h)', 'Visibility (km)', 'Stn Press (kPa)','timestamp']
         X = data[cols]
@@ -82,17 +81,23 @@ def main():
     SVC_scores = final_all[ final_all['Model'].str.contains('SVC') ]
     KNN_scores = final_all[ final_all['Model'].str.contains('KNN') ]
 
+
+    ## Set up labels for legend
+    blue = mpatches.Patch(color='blue', label='Data and Images')
+    green = mpatches.Patch(color='green', label='Data Only')
+    red = mpatches.Patch(color='red', label='Images Only')
+    
     ## Plot multiple bar charts with scores
-    X = np.arange(3)
-    plt.bar(X + 0.00, Gauss_scores['Score'], color = 'b', width = 0.25, label='Gaussian')
-    plt.bar(X + 0.25, SVC_scores['Score'], color = 'g', width = 0.25, label='SVC')
-    plt.bar(X + 0.50, KNN_scores['Score'], color = 'r', width = 0.25, label='KNN')
-    plt.legend(['Data and Images', 'Data Only', 'Images Only'])
-    plt.xticks(X+0.25,('Gaussian','SVC','KNN'))
+    X = np.array([0.00,0.25,0.50])
+    plt.bar(0 + X, Gauss_scores['Score'], color = ['b','g','r'], width = 0.25)
+    plt.bar(1 + X, SVC_scores['Score'], color = ['b','g','r'], width = 0.25)
+    plt.bar(2 + X, KNN_scores['Score'], color = ['b','g','r'], width = 0.25)
+    plt.legend(handles=[blue,green,red])
+    plt.xticks((0.25, 1.25, 2.25),('Gaussian','SVC','KNN'))
     plt.ylim(0,1)
     plt.ylabel('Score')
     plt.title('Scores of different models with subset of features')
-    plt.show()
+    plt.savefig('results.png')
 
 if __name__ == '__main__':
     main()
