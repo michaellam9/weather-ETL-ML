@@ -4,6 +4,8 @@ Webcams, Predictions, and Weather
 For CMPT 318
 --------------
 
+
+
 **Required Libraries** 
  - pandas
  - matplotlib
